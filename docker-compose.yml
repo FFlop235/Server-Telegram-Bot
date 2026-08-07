@@ -1,7 +1,8 @@
 services:
   bot:
+    image: server-telegram-bot
     build: .
-    container_name: telegram-remote-control-bot
+    container_name: server-telegram-bot
     restart: always
     network_mode: host
     env_file:
