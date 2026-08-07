@@ -4,12 +4,12 @@ from aiogram.types import BotCommand
 from aiogram.client.default import DefaultBotProperties
 from aiogram.enums import ParseMode
 from aiogram.client.session.aiohttp import AiohttpSession
-from aiogram.fsm.storage.memory import MemoryStorage
 from loguru import logger
 import sys
 
 from config import settings
 from handlers import routes
+from services import ip_service
 
 logger.remove()
 logger.add(
@@ -40,10 +40,20 @@ async def main():
 
     logger.info("✅ Прокси успешно подключен!" if proxy_url else "⚠️ Прокси не используется.")
 
-    storage = MemoryStorage()
-
-    dp = Dispatcher(storage=storage)
+    dp = Dispatcher()
     dp.include_routers(*routes)
+
+    @dp.startup()
+    async def on_startup():
+        ip = await ip_service.get_ip()
+        if ip:
+            logger.info(f"🌐 IP сервера: {ip}")
+        else:
+            logger.warning("⚠️ Не удалось получить IP сервера.")
+        await bot.send_message(
+            chat_id=settings.ADMIN_ID,
+            text=f"🚀 Сервер успешно запущен!\n🌐 IP сервера: {ip if ip else 'Не удалось получить IP'}"
+        )
 
     logger.info("✅ Роутеры успешно подключены!")
 

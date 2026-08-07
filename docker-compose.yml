@@ -1,0 +1,16 @@
+services:
+  bot:
+    build: .
+    container_name: telegram-remote-control-bot
+    restart: always
+    network_mode: host
+    env_file:
+      - .env
+    volumes:
+      - ./bot.log:/app/bot.log
+      - ./.env:/app/.env:ro
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
